@@ -37,7 +37,7 @@ public class CalculateSales {
 		if(!readFile(args[0], FILE_NAME_BRANCH_LST, branchNames, branchSales)) {
 			return;
 		}
-//args[0] デバック　正規
+//デバック　正規
 		// ※ここから集計処理を作成してください。(処理内容2-1、2-2)途中
 		File[] files= new File(args[0]).listFiles();
 		//System.out.print(files);
@@ -83,8 +83,8 @@ public class CalculateSales {
 				// ※ここの読み込み処理を変更してください。(処理内容1-2)済
 				String[] items = line.split(",");
 						branchNames.put(items[0],items[1]);
-						branchSales.put(items[1],(long)0);
-			}//
+						branchSales.put(items[0],(long)0);
+			}
 
 		} catch(IOException e) {
 			System.out.println(UNKNOWN_ERROR);
