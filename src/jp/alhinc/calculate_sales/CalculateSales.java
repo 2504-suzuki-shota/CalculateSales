@@ -1,8 +1,10 @@
 package jp.alhinc.calculate_sales;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -153,15 +155,18 @@ public class CalculateSales {
 	 */
 	private static boolean writeFile(String path, String fileName, Map<String, String> branchNames, Map<String, Long> branchSales) {
 		// ※ここに書き込み処理を作成してください。(処理内容3-1)途中
-		BufferedReader bo = null;
+		// branchNamesは支店コード→支店名のマップ
+		// branchSalesは支店コード→合計売上のマップ
+		BufferedWriter bo = null;
 
 			try {
-				File bfile = new File(path,fileName);
-				FileReader bfr = new FileReader(bfile);
-				bo = new BufferedReader(bfr); //boはfileの場所
+				File bfile = new File(path,fileName); //branchoutは今は存在しないのに指定？
+				FileWriter bfr = new FileWriter(bfile);
+				bo = new BufferedWriter(bfr); //boはfileの場所
 
 				for(String key:branchNames.keySet()) {
-					bo.write(branchNames.get(key));
+					bo.write(key + "," + branchNames.get(key) + "," + branchSales.get(key));
+					bo.newLine(); //改行
 				}
 
 				//売上金額の型変更 String→Long
