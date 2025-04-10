@@ -41,12 +41,14 @@ public class CalculateSales {
 		}
 
 		// ※ここから集計処理を作成してください。(処理内容2-1、2-2)済
-		File[] files= new File(args[0]).listFiles(); //指定したフォルダから中身を全部取得
+		File[] files= new File(args[0]).listFiles(); //filesは売上集計課題フォルダの中全部
 		List<File> rcdFiles = new ArrayList<>();
 
-		for(int i = 0;i < files.length;i++) { //files[i].getName();ファイル名の取り出し
-			if(files[i].getName().matches("^[0-9]{8}.rcd$")) {
-				rcdFiles.add(files[i]); //rcdFilesリストに、ファイル名「8桁.rcd」の条件合致したのを追加
+		for(int i = 0;i < files.length;i++) {
+			if(files[i].getName().matches("^[0-9]{8}.rcd$")) { //files[i].getName();ファイル名部分のみもらい
+				rcdFiles.add(files[i]);
+				//rcdFilesリストに、ファイル名「8桁.rcd」の条件合致したのを追加
+				//追加してるのはfiles[i]だから「8桁.rcd」の手前も書かれてるパス
 			}
 		}
 
@@ -62,7 +64,7 @@ public class CalculateSales {
 				String rline;
 				List<String> filesales = new ArrayList<>(); //リストfilesales
 				while((rline = sa.readLine()) != null) {
-					filesales.add(rline); //1行ずつリストに追加
+					filesales.add(rline); //「8桁.rcd」ファイルを1行ずつ読み込んでリストに追加
 					}
 
 				//売上金額の型変更 String→Long
@@ -73,7 +75,7 @@ public class CalculateSales {
 
 				//計算後の売上金額をMapに追加（書き換え）
 				branchSales.put(filesales.get(0),saleAmount);
-				}catch(IOException e) {
+				} catch(IOException e) {
 					System.out.println(UNKNOWN_ERROR);
 					return; //処理をストップするだけ。readFileは真偽返す必要あったからfalse書いてた。
 				} finally {
@@ -88,7 +90,6 @@ public class CalculateSales {
 						}
 					}
 				}
-				return;
 			} //forの}
 
 
@@ -113,19 +114,18 @@ public class CalculateSales {
 		try {
 			File file = new File(path, fileName);
 			FileReader fr = new FileReader(file);
-			br = new BufferedReader(fr);
+			br = new BufferedReader(fr); //brはfileの場所
 
 			String line;
 			// 一行ずつ読み込む
 			while((line = br.readLine()) != null) {
 				// ※ここの読み込み処理を変更してください。(処理内容1-2)済
-				String[] items = line.split(",");
-						branchNames.put(items[0],items[1]);
-						branchSales.put(items[0],(long)0);
+				String[] items = line.split(","); //String[] items = {支店コード,支店名};
+						branchNames.put(items[0],items[1]); //keyは支店コード、valueは支店名
+						branchSales.put(items[0],(long)0); //keyは支店コード、valueは0
 			}
-
 		} catch(IOException e) {
-			System.out.println(UNKNOWN_ERROR);
+			System.out.println(FILE_NOT_EXIST);
 			return false;
 		} finally {
 			// ファイルを開いている場合
@@ -145,7 +145,6 @@ public class CalculateSales {
 	/**
 	 * 支店別集計ファイル書き込み処理
 	 * 支店別集計ファイル名
-		private static final String FILE_NAME_BRANCH_OUT = "branch.out";
 	 *
 	 * @param フォルダパス
 	 * @param ファイル名
@@ -154,48 +153,37 @@ public class CalculateSales {
 	 * @return 書き込み可否
 	 */
 	private static boolean writeFile(String path, String fileName, Map<String, String> branchNames, Map<String, Long> branchSales) {
-		// ※ここに書き込み処理を作成してください。(処理内容3-1)途中
-		// branchNamesは支店コード→支店名のマップ
-		// branchSalesは支店コード→合計売上のマップ
+		// ※ここに書き込み処理を作成してください。(処理内容3-1)済
 		BufferedWriter bo = null;
 
 			try {
-				File bfile = new File(path,fileName); //branchoutは今は存在しないのに指定？
+				File bfile = new File(path,fileName); //fileNameなくてもwriteで勝手に作ってくれるらしい。便利！
 				FileWriter bfr = new FileWriter(bfile);
 				bo = new BufferedWriter(bfr); //boはfileの場所
 
 				for(String key:branchNames.keySet()) {
+//					keyはbranchNamesのkeyだから支店コード
+//					→これ全部取得するまで繰り返し
+//					→001～作ったの最後まで
 					bo.write(key + "," + branchNames.get(key) + "," + branchSales.get(key));
 					bo.newLine(); //改行
-				}
-
-				//売上金額の型変更 String→Long
-				long fileSale = Long.parseLong(filesales.get(1));
-
-				//売上金額を足す
-				long saleAmount = branchSales.get(filesales.get(0)) + fileSale;
-
-				//計算後の売上金額をMapに追加（書き換え）
-				branchSales.put(filesales.get(0),saleAmount);
+					}
 				}catch(IOException e) {
 					System.out.println(UNKNOWN_ERROR);
-					return; //処理をストップするだけ。readFileは真偽返す必要あったからfalse書いてた。
+					return false; //booleanだから真偽の返しほしい。
 				} finally {
 					// ファイルを開いている場合
-					if(sa != null) {
+					if(bo != null) {
 						try {
 							// ファイルを閉じる
-							sa.close();
+							bo.close();
 						} catch(IOException e) {
 							System.out.println(UNKNOWN_ERROR);
-							return;
+							return false;
 						}
 					}
 				}
-				return;
-
-
-		return true;
+				return true;
 	}
 
 }
