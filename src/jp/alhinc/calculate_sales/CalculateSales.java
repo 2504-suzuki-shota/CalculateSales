@@ -67,8 +67,8 @@ public class CalculateSales {
 				String line;
 				List<String> filesales = new ArrayList<>(); //リストfilesales
 				while((line = br.readLine()) != null) {
-				//「8桁.rcd」ファイルを1行ずつ読み込んでリストに追加
-				filesales.add(line);
+					//「8桁.rcd」ファイルを1行ずつ読み込んでリストに追加
+					filesales.add(line);
 				}
 
 				//売上金額の型変更 String→Long
@@ -168,10 +168,10 @@ public class CalculateSales {
 
 			try {
 				//fileNameなくてもwriteで勝手に作ってくれるらしい。便利！
-				File bfile = new File(path,fileName);
-				FileWriter bfr = new FileWriter(bfile);
+				File file = new File(path,fileName);
+				FileWriter fr = new FileWriter(file);
 				//bwはfileの場所
-				bw = new BufferedWriter(bfr);
+				bw = new BufferedWriter(fr);
 
 				for(String key: branchNames.keySet()) {
 					//keyはbranchNamesのkeyだから支店コード
