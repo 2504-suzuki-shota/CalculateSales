@@ -54,6 +54,19 @@ public class CalculateSales {
 			}
 		}
 
+		//*売上ファイルが連番になっていない場合(エラー処理2-1)きれいにしたい、formerが00000001で出ない
+		for(int i = 0; i < rcdFiles.size() - 1; i++) {
+			//fullfilename = rcdFiles.get(i) = args[0]\0000000@.rcd
+			//filename = fullfilename.getName() = 0000000@.rcd
+			//filename.substrin(0,8) = 0000000@
+			int former = Integer.parseInt(((rcdFiles.get(i)).getName()).substring(0, 8));
+			int latter = Integer.parseInt(((rcdFiles.get(i + 1)).getName()).substring(0, 8));
+			if(latter - former != 1) {
+				System.out.println("売上ファイル名が連番になっていません");
+				return;
+			}
+		}
+
 		//売上集計ファイル読み込み処理
 		BufferedReader br = null;
 
@@ -65,9 +78,10 @@ public class CalculateSales {
 				br = new BufferedReader(fr);
 
 				String line;
-				List<String> filesales = new ArrayList<>(); //リストfilesales
+				List<String> filesales = new ArrayList<>();
 				while((line = br.readLine()) != null) {
 					//「8桁.rcd」ファイルを1行ずつ読み込んでリストに追加
+					//filesales = {支店コード, 売上金額};
 					filesales.add(line);
 				}
 
@@ -76,6 +90,11 @@ public class CalculateSales {
 
 				//売上金額を足す
 				long saleAmount = branchSales.get(filesales.get(0)) + fileSale;
+
+				//*合計金額が10桁を超えた場合(エラー処理2-2)済
+				if(saleAmount >= 10000000000L) {
+					System.out.println("合計金額が10桁を超えました");
+				}
 
 				//計算後の売上金額をMapに追加（書き換え）
 				branchSales.put(filesales.get(0), saleAmount);
@@ -119,10 +138,16 @@ public class CalculateSales {
 
 		try {
 			File file = new File(path, fileName);
+
+			//*支店定義ファイルが存在しない場合(エラー処理1-1)済
+			if(!file.exists()) {
+				System.out.println(FILE_NOT_EXIST);
+				return false;
+			}
+
 			FileReader fr = new FileReader(file);
 			//brはfileの場所
 			br = new BufferedReader(fr);
-
 			String line;
 			// 一行ずつ読み込む
 			while((line = br.readLine()) != null) {
@@ -131,6 +156,13 @@ public class CalculateSales {
 				String[] items = line.split(",");
 				//keyは支店コード、valueは支店名
 				branchNames.put(items[0], items[1]);
+
+				//*支店定義ファイルのフォーマットが不正な場合(エラー処理1-2)済
+				if((items.length != 2) || (!items[0].matches("^[0-9]{3}$"))) {
+					System.out.println(FILE_INVALID_FORMAT);
+					return false;
+				}
+
 				//keyは支店コード、valueは0。「(long)0」は「0L」でも可。
 				branchSales.put(items[0], (long)0);
 			}
