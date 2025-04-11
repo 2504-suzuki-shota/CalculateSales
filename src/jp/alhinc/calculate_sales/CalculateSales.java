@@ -30,6 +30,13 @@ public class CalculateSales {
 	 * @param コマンドライン引数
 	 */
 	public static void main(String[] args) {
+
+		//*コマンドライン引数が渡されていない場合(エラー処理3)
+		if(args.length != 1) {
+			System.out.println(UNKNOWN_ERROR);
+			return;
+		}
+
 		// 支店コードと支店名を保持するMap
 		Map<String, String> branchNames = new HashMap<>();
 		// 支店コードと売上金額を保持するMap
@@ -41,24 +48,31 @@ public class CalculateSales {
 		}
 
 		// ※ここから集計処理を作成してください。(処理内容2-1、2-2)済
-		//filesは売上集計課題フォルダの中全部
+		//filesは売上集計課題フォルダの中身全部
 		File[] files= new File(args[0]).listFiles();
 		List<File> rcdFiles = new ArrayList<>();
 
 		for(int i = 0; i < files.length; i++) {
+
 			//files[i].getName();ファイル名部分のみもらい
 			if(files[i].getName().matches("^[0-9]{8}.rcd$")) {
-				//rcdFilesリストに、ファイル名「8桁.rcd」の条件合致したのを追加
+				//rcdFilesリストに、ファイル名「8桁.rcd」の条件合致したもののみを追加
 				//追加してるのはfiles[i]だから「8桁.rcd」の手前も書かれてるパス
 				rcdFiles.add(files[i]);
 			}
+
+			//*売上ファイルがファイルになっていない場合(エラー処理3) 後半が上と重複？
+			if(rcdFiles.get(i).isFile() && files[i].getName().matches("^[0-9]{8}.rcd$")) {
+				System.out.println(UNKNOWN_ERROR);
+				return;
+			}
 		}
 
-		//*売上ファイルが連番になっていない場合(エラー処理2-1)きれいにしたい、formerが00000001で出ない
+		//*売上ファイルが連番になっていない場合(エラー処理2-1)済
 		for(int i = 0; i < rcdFiles.size() - 1; i++) {
-			//fullfilename = rcdFiles.get(i) = args[0]\0000000@.rcd
-			//filename = fullfilename.getName() = 0000000@.rcd
-			//filename.substrin(0,8) = 0000000@
+			//rcdFiles.get(i)                         = args[0]\0000000@.rcd
+			//rcdFiles.get(i).getName()               = 0000000@.rcd
+			//rcdFiles.get(i).getName().substrin(0,8) = 0000000@
 			int former = Integer.parseInt(((rcdFiles.get(i)).getName()).substring(0, 8));
 			int latter = Integer.parseInt(((rcdFiles.get(i + 1)).getName()).substring(0, 8));
 			if(latter - former != 1) {
@@ -72,17 +86,37 @@ public class CalculateSales {
 
 		for(int i = 0; i < rcdFiles.size(); i++) {
 			try {
+				//rcdFiles.get(i) = args[0]\0000000@.rcd
 				File file = rcdFiles.get(i);
 				FileReader fr = new FileReader(file);
 				//brはfileの場所
 				br = new BufferedReader(fr);
 
+				//「8桁.rcd」のファイルを1行ずつ読み込んでリストに追加する
 				String line;
 				List<String> filesales = new ArrayList<>();
 				while((line = br.readLine()) != null) {
-					//「8桁.rcd」ファイルを1行ずつ読み込んでリストに追加
-					//filesales = {支店コード, 売上金額};
+					//filesales = {支店コード, 売上金額};になる
 					filesales.add(line);
+				}
+
+				//*売上ファイルの支店コードが支店定義ファイルに存在しない場合(エラー処理2-3)済
+				if(!branchNames.containsKey(filesales.get(0))) {
+					System.out.println(rcdFiles.get(i).getName() + "の支店コードが不正です");
+					return;
+				}
+
+				//*売上ファイルの中身が3桁以上ある場合(エラー処理2-4)済
+				if(filesales.size() != 2) {
+					//rcdFiles.get(i).getName() = 0000000@.rcd
+					System.out.println(rcdFiles.get(i).getName() + "のフォーマットが不正です");
+					return;
+				}
+
+				//*売上金額が数字でない場合(エラー処理3)済
+				if(!(filesales.get(1).matches("^[0-9]*$"))) {
+					System.out.println(UNKNOWN_ERROR);
+					return;
 				}
 
 				//売上金額の型変更 String→Long
@@ -94,28 +128,29 @@ public class CalculateSales {
 				//*合計金額が10桁を超えた場合(エラー処理2-2)済
 				if(saleAmount >= 10000000000L) {
 					System.out.println("合計金額が10桁を超えました");
+					return;
 				}
 
-				//計算後の売上金額をMapに追加（書き換え）
+				//計算後の売上金額をMapに書き換え
 				branchSales.put(filesales.get(0), saleAmount);
-				} catch(IOException e) {
+			} catch(IOException e) {
 					System.out.println(UNKNOWN_ERROR);
 					//処理をストップするだけ。readFileは真偽返す必要あったからfalse書いてた。
 					return;
-				} finally {
+			} finally {
 					// ファイルを開いている場合
-					if(br != null) {
-						try {
+				if(br != null) {
+					try {
 							// ファイルを閉じる
 							br.close();
-						} catch(IOException e) {
-							System.out.println(UNKNOWN_ERROR);
-							return;
-						}
+					} catch(IOException e) {
+						System.out.println(UNKNOWN_ERROR);
+						return;
 					}
 				}
-			//forの}
 			}
+		//forの}
+		}
 
 		// 支店別集計ファイル書き込み処理
 		if(!writeFile(args[0], FILE_NAME_BRANCH_OUT, branchNames, branchSales)) {
@@ -154,15 +189,14 @@ public class CalculateSales {
 				// ※ここの読み込み処理を変更してください。(処理内容1-2)済
 				//String[] items = {支店コード,支店名};
 				String[] items = line.split(",");
-				//keyは支店コード、valueは支店名
-				branchNames.put(items[0], items[1]);
 
 				//*支店定義ファイルのフォーマットが不正な場合(エラー処理1-2)済
 				if((items.length != 2) || (!items[0].matches("^[0-9]{3}$"))) {
 					System.out.println(FILE_INVALID_FORMAT);
 					return false;
 				}
-
+				//keyは支店コード、valueは支店名
+				branchNames.put(items[0], items[1]);
 				//keyは支店コード、valueは0。「(long)0」は「0L」でも可。
 				branchSales.put(items[0], (long)0);
 			}
