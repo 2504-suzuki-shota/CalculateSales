@@ -31,7 +31,7 @@ public class CalculateSales {
 	 */
 	public static void main(String[] args) {
 
-		//*コマンドライン引数が渡されていない場合(エラー処理3)
+		//*コマンドライン引数が渡されていない場合(エラー処理3)済
 		if(args.length != 1) {
 			System.out.println(UNKNOWN_ERROR);
 			return;
@@ -59,12 +59,6 @@ public class CalculateSales {
 				//rcdFilesリストに、ファイル名「8桁.rcd」の条件合致したもののみを追加
 				//追加してるのはfiles[i]だから「8桁.rcd」の手前も書かれてるパス
 				rcdFiles.add(files[i]);
-			}
-
-			//*売上ファイルがファイルになっていない場合(エラー処理3) 後半が上と重複？
-			if(rcdFiles.get(i).isFile() && files[i].getName().matches("^[0-9]{8}.rcd$")) {
-				System.out.println(UNKNOWN_ERROR);
-				return;
 			}
 		}
 
@@ -106,14 +100,14 @@ public class CalculateSales {
 					return;
 				}
 
-				//*売上ファイルの中身が3桁以上ある場合(エラー処理2-4)済
+				//*売上ファイルの中身が3行以上ある場合(エラー処理2-4)済
 				if(filesales.size() != 2) {
 					//rcdFiles.get(i).getName() = 0000000@.rcd
 					System.out.println(rcdFiles.get(i).getName() + "のフォーマットが不正です");
 					return;
 				}
 
-				//*売上金額が数字でない場合(エラー処理3)済
+				//*売上ファイルの売上金額が数字でない場合(エラー処理3)済
 				if(!(filesales.get(1).matches("^[0-9]*$"))) {
 					System.out.println(UNKNOWN_ERROR);
 					return;
@@ -233,7 +227,7 @@ public class CalculateSales {
 		BufferedWriter bw = null;
 
 			try {
-				//fileNameなくてもwriteで勝手に作ってくれるらしい。便利！
+				//fileNameなくてもwriteで勝手に作ってくれるらしい。
 				File file = new File(path,fileName);
 				FileWriter fr = new FileWriter(file);
 				//bwはfileの場所
