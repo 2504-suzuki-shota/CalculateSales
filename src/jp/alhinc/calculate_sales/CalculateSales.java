@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,10 @@ public class CalculateSales {
 	private static final String UNKNOWN_ERROR = "予期せぬエラーが発生しました";
 	private static final String FILE_NOT_EXIST = "支店定義ファイルが存在しません";
 	private static final String FILE_INVALID_FORMAT = "支店定義ファイルのフォーマットが不正です";
+	private static final String RCDFILES_NOT_CONTINOUS = "売上ファイル名が連番になっていません";
+	private static final String INVALID_CORD = "の支店コードが不正です";
+	private static final String INVALID_FORMAT = "のフォーマットが不正です";
+	private static final String SALE_AMOUNT_OVER= "合計金額が10桁を超えました";
 
 	/**
 	 * メインメソッド
@@ -59,6 +64,9 @@ public class CalculateSales {
 			}
 		}
 
+		//ソート追加 OS問わず使えるようにするため
+		Collections.sort(rcdFiles);
+
 		//*売上ファイルが連番になっていない場合(エラー処理2-1)済
 		for(int i = 0; i < rcdFiles.size() - 1; i++) {
 			//rcdFiles.get(i)                         = args[0]\0000000@.rcd
@@ -67,7 +75,7 @@ public class CalculateSales {
 			int former = Integer.parseInt(((rcdFiles.get(i)).getName()).substring(0, 8));
 			int latter = Integer.parseInt(((rcdFiles.get(i + 1)).getName()).substring(0, 8));
 			if(latter - former != 1) {
-				System.out.println("売上ファイル名が連番になっていません");
+				System.out.println(RCDFILES_NOT_CONTINOUS);
 				return;
 			}
 		}
@@ -89,16 +97,16 @@ public class CalculateSales {
 					filesales.add(line);
 				}
 
-				//*売上ファイルの支店コードが支店定義ファイルに存在しない場合(エラー処理2-3)済
-				if(!branchNames.containsKey(filesales.get(0))) {
-					System.out.println(rcdFiles.get(i).getName() + "の支店コードが不正です");
+				//*売上ファイルの中身が3行以上ある場合(エラー処理2-4)済 エラーは大きい順に書く
+				if(filesales.size() != 2) {
+					//rcdFiles.get(i).getName() = 0000000@.rcd
+					System.out.println(rcdFiles.get(i).getName() + INVALID_FORMAT);
 					return;
 				}
 
-				//*売上ファイルの中身が3行以上ある場合(エラー処理2-4)済
-				if(filesales.size() != 2) {
-					//rcdFiles.get(i).getName() = 0000000@.rcd
-					System.out.println(rcdFiles.get(i).getName() + "のフォーマットが不正です");
+				//*売上ファイルの支店コードが支店定義ファイルに存在しない場合(エラー処理2-3)済
+				if(!branchNames.containsKey(filesales.get(0))) {
+					System.out.println(rcdFiles.get(i).getName() + INVALID_CORD);
 					return;
 				}
 
@@ -114,7 +122,7 @@ public class CalculateSales {
 				long saleAmount = branchSales.get(filesales.get(0)) + fileSale;
 				//*合計金額が10桁を超えた場合(エラー処理2-2)済
 				if(saleAmount >= 10000000000L) {
-					System.out.println("合計金額が10桁を超えました");
+					System.out.println(SALE_AMOUNT_OVER);
 					return;
 				}
 				//計算後の売上金額をMapに書き換え
@@ -141,7 +149,7 @@ public class CalculateSales {
 		if(!writeFile(args[0], FILE_NAME_BRANCH_OUT, branchNames, branchSales)) {
 			return;
 		}
-	//mainクラスの}
+	//mainメソッドの}
 	}
 
 	/**
