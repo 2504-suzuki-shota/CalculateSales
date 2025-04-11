@@ -54,10 +54,10 @@ public class CalculateSales {
 
 		for(int i = 0; i < files.length; i++) {
 
-			//files[i].getName();ファイル名部分のみもらい
-			if(files[i].getName().matches("^[0-9]{8}.rcd$")) {
-				//rcdFilesリストに、ファイル名「8桁.rcd」の条件合致したもののみを追加
-				//追加してるのはfiles[i]だから「8桁.rcd」の手前も書かれてるパス
+			//filesの中身がファイルかつファイル名が「8桁.rcd」なら処理へ
+			if(files[i].isFile() && files[i].getName().matches("^[0-9]{8}.rcd$")) {
+				//rcdFilesリストに、条件クリアしたもののみを追加
+				//追加してるのはfiles[i]だから「8桁.rcd」の手前も書かれているパス
 				rcdFiles.add(files[i]);
 			}
 		}
