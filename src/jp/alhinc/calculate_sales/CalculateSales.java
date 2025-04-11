@@ -68,7 +68,7 @@ public class CalculateSales {
 		Collections.sort(rcdFiles);
 
 		//*売上ファイルが連番になっていない場合(エラー処理2-1)済
-		for(int i = 0; i < rcdFiles.size() - 1; i++) {
+		for(int i = 0; i < rcdFiles.size() -1; i++) {
 			//rcdFiles.get(i)                         = args[0]\0000000@.rcd
 			//rcdFiles.get(i).getName()               = 0000000@.rcd
 			//rcdFiles.get(i).getName().substrin(0,8) = 0000000@
@@ -128,9 +128,9 @@ public class CalculateSales {
 				//計算後の売上金額をMapに書き換え
 				branchSales.put(filesales.get(0), saleAmount);
 			} catch(IOException e) {
-					System.out.println(UNKNOWN_ERROR);
-					//処理をストップするだけ。readFileは真偽返す必要あったからfalse書いてた。
-					return;
+				System.out.println(UNKNOWN_ERROR);
+				//処理をストップするだけ。readFileは真偽返す必要あったからfalse書いてた。
+				return;
 			} finally {
 				// ファイルを開いている場合
 				if(br != null) {
@@ -223,37 +223,37 @@ public class CalculateSales {
 	private static boolean writeFile(String path, String fileName, Map<String, String> branchNames, Map<String, Long> branchSales) {
 		// ※ここに書き込み処理を作成してください。(処理内容3-1)済
 		BufferedWriter bw = null;
-			try {
-				//fileNameなくてもwriteで勝手に作ってくれるらしい。
-				File file = new File(path,fileName);
-				FileWriter fr = new FileWriter(file);
-				//bwはfileの場所
-				bw = new BufferedWriter(fr);
+		try {
+			//fileNameなくてもwriteで勝手に作ってくれるらしい。
+			File file = new File(path,fileName);
+			FileWriter fr = new FileWriter(file);
+			//bwはfileの場所
+			bw = new BufferedWriter(fr);
 
-				for(String key: branchNames.keySet()) {
-					//keyはbranchNamesのkeyだから支店コード
-					//→これ全部取得するまで繰り返し
-					//→001～作ったの最後まで
-					bw.write(key + "," + branchNames.get(key) + "," + branchSales.get(key));
-					//改行
-					bw.newLine();
-				}
-			} catch(IOException e) {
-				System.out.println(UNKNOWN_ERROR);
-				//booleanだから真偽の返しほしい。
-				return false;
-			} finally {
-				// ファイルを開いている場合
-				if(bw != null) {
-					try {
-						// ファイルを閉じる
-						bw.close();
-					} catch(IOException e) {
-						System.out.println(UNKNOWN_ERROR);
-						return false;
-					}
+			for(String key: branchNames.keySet()) {
+				//keyはbranchNamesのkeyだから支店コード
+				//→これ全部取得するまで繰り返し
+				//→001～作ったの最後まで
+				bw.write(key + "," + branchNames.get(key) + "," + branchSales.get(key));
+				//改行
+				bw.newLine();
+			}
+		} catch(IOException e) {
+			System.out.println(UNKNOWN_ERROR);
+			//booleanだから真偽の返しほしい。
+			return false;
+		} finally {
+			// ファイルを開いている場合
+			if(bw != null) {
+				try {
+					// ファイルを閉じる
+					bw.close();
+				} catch(IOException e) {
+					System.out.println(UNKNOWN_ERROR);
+					return false;
 				}
 			}
+		}
 		return true;
 	}
 }
