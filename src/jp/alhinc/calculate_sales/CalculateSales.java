@@ -30,7 +30,6 @@ public class CalculateSales {
 	 * @param コマンドライン引数
 	 */
 	public static void main(String[] args) {
-
 		//*コマンドライン引数が渡されていない場合(エラー処理3)済
 		if(args.length != 1) {
 			System.out.println(UNKNOWN_ERROR);
@@ -51,9 +50,7 @@ public class CalculateSales {
 		//filesは売上集計課題フォルダの中身全部
 		File[] files= new File(args[0]).listFiles();
 		List<File> rcdFiles = new ArrayList<>();
-
 		for(int i = 0; i < files.length; i++) {
-
 			//filesの中身がファイルかつファイル名が「8桁.rcd」なら処理へ
 			if(files[i].isFile() && files[i].getName().matches("^[0-9]{8}.rcd$")) {
 				//rcdFilesリストに、条件クリアしたもののみを追加
@@ -77,7 +74,6 @@ public class CalculateSales {
 
 		//売上集計ファイル読み込み処理
 		BufferedReader br = null;
-
 		for(int i = 0; i < rcdFiles.size(); i++) {
 			try {
 				//rcdFiles.get(i) = args[0]\0000000@.rcd
@@ -85,7 +81,6 @@ public class CalculateSales {
 				FileReader fr = new FileReader(file);
 				//brはfileの場所
 				br = new BufferedReader(fr);
-
 				//「8桁.rcd」のファイルを1行ずつ読み込んでリストに追加する
 				String line;
 				List<String> filesales = new ArrayList<>();
@@ -115,16 +110,13 @@ public class CalculateSales {
 
 				//売上金額の型変更 String→Long
 				long fileSale = Long.parseLong(filesales.get(1));
-
 				//売上金額を足す
 				long saleAmount = branchSales.get(filesales.get(0)) + fileSale;
-
 				//*合計金額が10桁を超えた場合(エラー処理2-2)済
 				if(saleAmount >= 10000000000L) {
 					System.out.println("合計金額が10桁を超えました");
 					return;
 				}
-
 				//計算後の売上金額をMapに書き換え
 				branchSales.put(filesales.get(0), saleAmount);
 			} catch(IOException e) {
@@ -132,18 +124,17 @@ public class CalculateSales {
 					//処理をストップするだけ。readFileは真偽返す必要あったからfalse書いてた。
 					return;
 			} finally {
-					// ファイルを開いている場合
+				// ファイルを開いている場合
 				if(br != null) {
 					try {
-							// ファイルを閉じる
-							br.close();
+						// ファイルを閉じる
+						br.close();
 					} catch(IOException e) {
 						System.out.println(UNKNOWN_ERROR);
 						return;
 					}
 				}
 			}
-		//forの}
 		}
 
 		// 支店別集計ファイル書き込み処理
@@ -164,7 +155,6 @@ public class CalculateSales {
 	 */
 	private static boolean readFile(String path, String fileName, Map<String, String> branchNames, Map<String, Long> branchSales) {
 		BufferedReader br = null;
-
 		try {
 			File file = new File(path, fileName);
 
@@ -225,7 +215,6 @@ public class CalculateSales {
 	private static boolean writeFile(String path, String fileName, Map<String, String> branchNames, Map<String, Long> branchSales) {
 		// ※ここに書き込み処理を作成してください。(処理内容3-1)済
 		BufferedWriter bw = null;
-
 			try {
 				//fileNameなくてもwriteで勝手に作ってくれるらしい。
 				File file = new File(path,fileName);
