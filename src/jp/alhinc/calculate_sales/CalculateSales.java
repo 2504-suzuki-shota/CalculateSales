@@ -30,7 +30,7 @@ public class CalculateSales {
 	private static String branchRegular = "^[0-9]{3}$";
 
 	// 商品定義ファイル読み込み時の正規表現式
-		private static String commodityRegular = "^[A-Za-z0-9]{8}$";
+	private static String commodityRegular = "^[A-Za-z0-9]{8}$";
 
 	// エラーメッセージ
 	private static final String UNKNOWN_ERROR = "予期せぬエラーが発生しました";
@@ -41,7 +41,7 @@ public class CalculateSales {
 	private static final String COMMODITY_INVALID_CORD = "の商品コードが不正です";
 	private static final String OF_BRANCH = "支店定義ファイル";
 	private static final String OF_COMMODITY = "商品定義ファイル";
-	private static final String SALEAMOUNT_OVER= "の合計金額が10桁を超えました";
+	private static final String SALEAMOUNT_OVER= "合計金額が10桁を超えました";
 
 	/**
 	 * メインメソッド
@@ -155,11 +155,8 @@ public class CalculateSales {
 				long commodityAmount = commoditySales.get(filesales.get(1)) + fileSale;
 
 				//支店の合計金額が10桁を超えた場合(エラー処理2-2)済
-				if(branchAmount >= 10000000000L) {
-					System.out.println(OF_BRANCH + SALEAMOUNT_OVER);
-					return;
-				} else if(commodityAmount >= 10000000000L) {
-					System.out.println(OF_COMMODITY + SALEAMOUNT_OVER);
+				if(branchAmount >= 10000000000L || commodityAmount >= 10000000000L) {
+					System.out.println(SALEAMOUNT_OVER);
 					return;
 				}
 
