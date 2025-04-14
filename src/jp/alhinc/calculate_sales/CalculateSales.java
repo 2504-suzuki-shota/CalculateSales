@@ -207,6 +207,8 @@ public class CalculateSales {
 	 * @param 支店コードと売上金額を保持するMap
 	 * @return 読み込み可否
 	 */
+
+	//subject→対象
 	private static boolean readFile(String path, String fileName, Map<String, String> cordNames, Map<String, Long> cordSales, String subject, String regular) {
 		BufferedReader br = null;
 		try {
